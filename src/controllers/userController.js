@@ -47,3 +47,31 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ message: "Error al obtener usuarios" });
   }
 };
+
+export const updateUser = async (req, res) => {
+  try {
+    if (!req.user || !req.user.isAdmin) {
+      return res
+        .status(403)
+        .json({ message: "Acceso denegado. No eres administrador." });
+    }
+    const { id } = req.params;
+    const { name, email, password, isAdmin } = req.body;
+
+    let updateData = { name, email, isAdmin };
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    const user = await User.findByIdAndUpdate(id, updateData, {
+      new: true,
+    }).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" }); // Error 404 manejado desde el backend
+    }
+    res.status(200).json({ message: "Usuario actualizado", user });
+  } catch (error) {
+    console.error("Error al actualizar usuario:", error);
+    res.status(500).json({ message: "Error al actualizar usuario" });
+  }
+};

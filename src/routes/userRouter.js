@@ -7,6 +7,6 @@ const userRouter = Router();
 userRouter.post("/register", register);
 userRouter.post("/login", login);
 userRouter.get("/", auth, getAllUsers);
-//agregar mas rutas
+userRouter.put("/:id", auth, updateUser); //agregar mas rutas
 
 export default userRouter;
