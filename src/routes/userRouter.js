@@ -8,5 +8,5 @@ userRouter.post("/register", register);
 userRouter.post("/login", login);
 userRouter.get("/", auth, getAllUsers);
 userRouter.put("/:id", auth, updateUser); //agregar mas rutas
-
+userRouter.delete("/:id", auth, deleteUser);
 export default userRouter;
