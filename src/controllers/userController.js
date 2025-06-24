@@ -33,4 +33,17 @@ export const login = async (req, res) => {
   res.json({ token });
 };
 
-// listar usuarios, editar y borrar
+export const getAllUsers = async (req, res) => {
+  try {
+    if (!req.user || !req.user.isAdmin) {
+      return res
+        .status(403)
+        .json({ message: "Acceso denegado. No eres administrador." });
+    }
+    const users = await User.find().select("-password"); // No enviar contraseñas
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error al obtener usuarios:", error);
+    res.status(500).json({ message: "Error al obtener usuarios" });
+  }
+};
