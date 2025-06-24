@@ -75,3 +75,22 @@ export const updateUser = async (req, res) => {
     res.status(500).json({ message: "Error al actualizar usuario" });
   }
 };
+
+export const deleteUser = async (req, res) => {
+  try {
+    if (!req.user || !req.user.isAdmin) {
+      return res
+        .status(403)
+        .json({ message: "Acceso denegado. No eres administrador." });
+    }
+    const { id } = req.params;
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" }); // Error 404 manejado desde el backend
+    }
+    res.status(200).json({ message: "Usuario eliminado" });
+  } catch (error) {
+    console.error("Error al eliminar usuario:", error);
+    res.status(500).json({ message: "Error al eliminar usuario" });
+  }
+};
