@@ -4,11 +4,12 @@ import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import userRouter from "./routes/userRouter.js";
+import productRouter from "./routes/productRouter.js";
 
 dotenv.config();
 
 const app = express();
-
+// Middlewares
 app.use(cors());
 
 app.use(express.json());
@@ -16,8 +17,13 @@ app.use(express.json());
 app.use(morgan("dev"));
 //rutas
 app.use("/api/users", userRouter);
+app.use("/api/products", productRouter);
+// cone4xion a mongo y arranque del servidor
 
-// cone4xion a mongo
+// Ruta de prueba
+app.get("/", (req, res) => {
+  res.send("API de Control de Stock funcionando!");
+});
 
 mongoose
   .connect(process.env.MONGO_URI)
