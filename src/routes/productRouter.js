@@ -16,7 +16,7 @@ productRouter.get("/", getProducts);
 productRouter.get("/:id", getProductById);
 
 // Rutas protegidas para administradores (CRUD)
-productRouter.post("/", auth, createProduct); // Nota: `auth` aún no verifica si es admin
+productRouter.post("/", /* auth,*/ createProduct); // Nota: `auth` aún no verifica si es admin
 productRouter.put("/:id", auth, updateProduct);
 productRouter.delete("/:id", auth, deleteProduct);
 

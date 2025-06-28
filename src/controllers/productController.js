@@ -6,8 +6,15 @@ import Product from "../models/Product.js";
 export const createProduct = async (req, res) => {
   try {
     // 1. Obtener los datos del cuerpo de la solicitud
-    const { name, stock, description, lastStockControlDate, category, image } =
-      req.body;
+    const {
+      name,
+      stock,
+      description,
+      lastStockControlDate,
+      category,
+      image,
+      author,
+    } = req.body;
 
     // 2. Validar que los campos obligatorios no estén vacíos
     if (!name || !stock || !description) {
@@ -24,6 +31,7 @@ export const createProduct = async (req, res) => {
       lastStockControlDate,
       category,
       image,
+      author,
     });
 
     // 4. Guardar el producto en la base de datos
