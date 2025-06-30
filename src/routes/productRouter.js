@@ -5,19 +5,25 @@ import {
   getProductById,
   updateProduct,
   deleteProduct,
+  adjustStock,
+  buyProduct 
 } from "../controllers/productController.js";
 
-import auth from "../middleware/auth.js"; // Importa tu middleware de autenticación
+import { verifyToken, isAdmin } from "../middleware/auth.js";
+
 
 const productRouter = Router();
 
-// Rutas de acceso público (cualquier usuario puede ver los productos)
+// Rutas públicas
 productRouter.get("/", getProducts);
 productRouter.get("/:id", getProductById);
+productRouter.patch("/adjust-stock/:productId", adjustStock);
+productRouter.post("/buy/:productId", verifyToken, buyProduct);
 
-// Rutas protegidas para administradores (CRUD)
-productRouter.post("/", /* auth,*/ createProduct); // Nota: `auth` aún no verifica si es admin
-productRouter.put("/:id", auth, updateProduct);
-productRouter.delete("/:id", auth, deleteProduct);
+// Rutas protegidas para admins
+productRouter.post("/", verifyToken, isAdmin, createProduct);
+productRouter.put("/:id", verifyToken, isAdmin, updateProduct);
+productRouter.delete("/:id", verifyToken, isAdmin, deleteProduct);
+
 
 export default productRouter;

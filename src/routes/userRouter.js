@@ -5,14 +5,15 @@ import {
   getAllUsers,
   updateUser,
   deleteUser,
-} from "../controllers/userController.js"; // <--- IMPORTANTE: Ajusta la ruta si es diferente
-import auth from "../middleware/auth.js";
+} from "../controllers/userController.js";
+import { verifyToken, isAdmin } from "../middleware/auth.js";
 
 const userRouter = Router();
 
 userRouter.post("/register", register);
 userRouter.post("/login", login);
-userRouter.get("/", auth, getAllUsers);
-userRouter.put("/:id", auth, updateUser); //agregar mas rutas
-userRouter.delete("/:id", auth, deleteUser);
+userRouter.get("/", verifyToken, getAllUsers);
+userRouter.put("/:id", verifyToken, updateUser);
+userRouter.delete("/:id", verifyToken, deleteUser);
+
 export default userRouter;

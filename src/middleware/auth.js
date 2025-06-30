@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const auth = (req, res, next) => {
+export const verifyToken = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
     return res
@@ -13,12 +13,17 @@ const auth = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Adjunta la información del usuario decodificada
+    req.user = decoded;
     next();
   } catch (error) {
     console.error("Error de verificación de token:", error);
-    return res.status(403).json({ message: "Token inválido o expirado." }); // Asegúrate de retornar para evitar que el código siga ejecutándose
+    return res.status(403).json({ message: "Token inválido o expirado." });
   }
 };
 
-export default auth;
+export const isAdmin = (req, res, next) => {
+  if (!req.user?.isAdmin) {
+    return res.status(403).json({ message: "Acceso denegado. Solo admin." });
+  }
+  next();
+};

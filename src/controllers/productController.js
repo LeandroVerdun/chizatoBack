@@ -50,26 +50,100 @@ export const createProduct = async (req, res) => {
   }
 };
 
-export const getProducts = (req, res) => {
-  res.status(501).json({
-    message: "Función para obtener todos los productos no implementada.",
-  });
+//7. Funcion para obtener los productos
+
+export const getProducts = async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener productos", error: error.message });
+  }
 };
 
-export const getProductById = (req, res) => {
-  res.status(501).json({
-    message: "Función para obtener un producto por ID no implementada.",
-  });
+//8. Funcion para obtener el producto por ID
+
+export const getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Producto no encontrado" });
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener producto", error: error.message });
+  }
 };
 
-export const updateProduct = (req, res) => {
-  res
-    .status(501)
-    .json({ message: "Función para actualizar un producto no implementada." });
+//9. Funcion para actualizar los productos
+
+export const updateProduct = async (req, res) => {
+  try {
+    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ message: "Producto no encontrado" });
+    res.status(200).json({ message: "Producto actualizado", product: updated });
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar producto", error: error.message });
+  }
 };
 
-export const deleteProduct = (req, res) => {
-  res
-    .status(501)
-    .json({ message: "Función para eliminar un producto no implementada." });
+//10. Funcion para cambiar el stock del producto
+
+export const adjustStock = async (req, res) => {
+  const { productId } = req.params;
+  const { amount } = req.body; 
+
+  try {
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: "Producto no encontrado" });
+
+    product.stock += amount;
+    await product.save();
+
+    res.status(200).json({ message: "Stock actualizado correctamente", product });
+  } catch (error) {
+    res.status(500).json({ message: "Error al ajustar stock", error: error.message });
+  }
+};
+
+//11. Funcion para borrar producto
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Producto no encontrado" });
+    res.status(200).json({ message: "Producto eliminado" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar producto", error: error.message });
+  }
+};
+
+//12. Funcion para realizar compra
+
+export const buyProduct = async (req, res) => {
+  const { productId } = req.params;
+  const { quantity } = req.body;
+
+  if (!quantity || quantity <= 0) {
+    return res.status(400).json({ message: "Cantidad inválida." });
+  }
+
+  try {
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: "Producto no encontrado." });
+
+    if (product.stock < quantity) {
+      return res.status(400).json({ message: "Stock insuficiente." });
+    }
+
+    product.stock -= quantity;
+    product.lastStockControlDate = new Date();
+
+    await product.save();
+
+    res.status(200).json({
+      message: `Compra realizada. Stock restante: ${product.stock}`,
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error al procesar la compra.", error: error.message });
+  }
 };
