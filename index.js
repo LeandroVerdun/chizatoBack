@@ -12,7 +12,7 @@ const app = express();
 // Middlewares
 app.use(
   cors({
-    origin: "http://localhost:5174", // Permite solicitudes solo desde tu frontend
+    origin: "http://localhost:5173", // Permite solicitudes solo desde tu frontend
     methods: ["GET", "POST", "PUT", "DELETE"], // Métodos HTTP permitidos
     allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"], // Encabezados permitidos
   })
