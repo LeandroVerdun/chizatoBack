@@ -1,44 +1,46 @@
+// C:\Users\Usuario\Desktop\Rolling Code School\Proyecto final\chizatoBack\src\models\Product.js
+
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
     name: {
-      // En este caso seria para el nombre del libro (ej. "Cien años de soledad")
       type: String,
       required: true,
       unique: true,
-      trim: true,
     },
     stock: {
       type: Number,
       required: true,
-      default: 0,
       min: 0,
     },
     description: {
-      // Podría ser una sinopsis del libro
       type: String,
       required: true,
-    },
-    lastStockControlDate: {
-      type: Date,
-      default: Date.now,
-    },
-    image: {
-      // Podría ser la URL de la portada del libro
-      type: String,
-      required: false,
     },
     category: {
-      // El PDF menciona categorías, esto puede ser el género
       type: String,
       required: true,
-      trim: true,
     },
     author: {
       type: String,
       required: true,
-      trim: true,
+    },
+    image: {
+      type: String,
+      required: true,
+    },
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      default: 1,
+    },
+
+    price: {
+      type: Number,
+      required: true, // El precio debe ser obligatorio
+      min: 0, // El precio mínimo debe ser 0 o un valor positivo
     },
   },
   {
