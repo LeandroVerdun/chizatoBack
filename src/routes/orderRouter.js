@@ -16,7 +16,7 @@ const orderRouter = Router();
 
 // Rutas protegidas para usuarios y administradores
 orderRouter.post("/", verifyToken, createOrder); // Crear una nueva orden (checkout)
-orderRouter.get("/myorders/:id", verifyToken, getUserOrders); // Obtener las órdenes del usuario logueado
+orderRouter.get("/myorders", verifyToken, getUserOrders); // Obtener las órdenes del usuario logueado
 orderRouter.get("/:id", verifyToken, getOrderById); // Obtener detalles de una orden específica
 
 // Rutas protegidas para administradores

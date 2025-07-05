@@ -3,9 +3,9 @@ import Order from "../models/Order.js";
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js"; // Necesario para reducir stock
 
-// @desc    Crear una nueva orden (Checkout)
-// @route   POST /api/orders
-// @access  Private (Usuario autenticado)
+// @desc    Crear una nueva orden (Checkout)
+// @route   POST /api/orders
+// @access  Private (Usuario autenticado)
 export const createOrder = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -56,7 +56,7 @@ export const createOrder = async (req, res) => {
       user: userId,
       items: orderItems,
       totalAmount: totalAmount,
-      status: "processing", // O 'pending', dependiendo de tu flujo de pago
+      status: "completed",
       shippingAddress: shippingAddress, // Si se proporciona
       paymentMethod: paymentMethod, // Si se proporciona
       paymentResult: paymentResult, // Si se proporciona
@@ -88,9 +88,9 @@ export const createOrder = async (req, res) => {
   }
 };
 
-// @desc    Obtener todas las órdenes (solo para administradores)
-// @route   GET /api/orders
-// @access  Private (Admin)
+// @desc    Obtener todas las órdenes (solo para administradores)
+// @route   GET /api/orders
+// @access  Private (Admin)
 export const getOrders = async (req, res) => {
   try {
     const orders = await Order.find()
@@ -107,28 +107,27 @@ export const getOrders = async (req, res) => {
   }
 };
 
-// @desc    Obtener órdenes de un usuario específico (para el propio usuario o admin)
-// @route   GET /api/orders/myorders o /api/orders/user/:userId
-// @access  Private (Usuario autenticado o Admin)
+// @desc    Obtener órdenes de un usuario específico (para el propio usuario o admin)
+// @route   GET /api/orders/myorders o /api/orders/user/:userId
+// @access  Private (Usuario autenticado o Admin)
 export const getUserOrders = async (req, res) => {
   try {
-    const userId = req.user.id || req.params.userId; // Si viene por parámetro (admin), o del token (usuario)
-    // Asegúrate de que un usuario no pueda ver las órdenes de otro a menos que sea admin
-    if (req.user.id !== userId && !req.user.isAdmin) {
+    const targetUserId = req.params.userId || req.user.id;
+
+    if (req.user.id !== targetUserId && !req.user.isAdmin) {
       return res.status(403).json({
         message: "Acceso denegado. No autorizado para ver estas órdenes.",
       });
     }
 
-    const orders = await Order.find({ user: userId }).populate(
+    const orders = await Order.find({ user: targetUserId }).populate(
       "items.product",
       "name image"
-    ); // Popula el nombre y la imagen del producto
+    );
     console.log(orders);
-    if (!orders) {
-      return res
-        .status(404)
-        .json({ message: "No se encontraron órdenes para este usuario." });
+
+    if (!orders || orders.length === 0) {
+      return res.status(200).json([]);
     }
 
     res.status(200).json(orders);
@@ -141,9 +140,9 @@ export const getUserOrders = async (req, res) => {
   }
 };
 
-// @desc    Obtener una orden por ID (para ver detalles de una orden específica)
-// @route   GET /api/orders/:id
-// @access  Private (Usuario autenticado o Admin)
+// @desc    Obtener una orden por ID (para ver detalles de una orden específica)
+// @route   GET /api/orders/:id
+// @access  Private (Usuario autenticado o Admin)
 export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
@@ -171,9 +170,9 @@ export const getOrderById = async (req, res) => {
   }
 };
 
-// @desc    Actualizar el estado de una orden (solo para administradores)
-// @route   PUT /api/orders/:id/status
-// @access  Private (Admin)
+// @desc    Actualizar el estado de una orden (solo para administradores)
+// @route   PUT /api/orders/:id/status
+// @access  Private (Admin)
 export const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body; // Nuevo estado (ej: 'shipped', 'completed')
@@ -209,9 +208,9 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
-// @desc    Eliminar una orden (solo para administradores)
-// @route   DELETE /api/orders/:id
-// @access  Private (Admin)
+// @desc    Eliminar una orden (solo para administradores)
+// @route   DELETE /api/orders/:id
+// @access  Private (Admin)
 export const deleteOrder = async (req, res) => {
   try {
     const order = await Order.findByIdAndDelete(req.params.id);
