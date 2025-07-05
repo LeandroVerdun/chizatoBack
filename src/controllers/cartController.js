@@ -42,11 +42,9 @@ export const addOrUpdateCartItem = async (req, res) => {
       return res.status(404).json({ message: "Producto no encontrado." });
     }
     if (product.stock < quantity) {
-      return res
-        .status(400)
-        .json({
-          message: `No hay suficiente stock para ${product.name}. Stock disponible: ${product.stock}`,
-        });
+      return res.status(400).json({
+        message: `No hay suficiente stock para ${product.name}. Stock disponible: ${product.stock}`,
+      });
     }
 
     let cart = await Cart.findOne({ user: userId });
@@ -65,7 +63,11 @@ export const addOrUpdateCartItem = async (req, res) => {
       cart.items[itemIndex].quantity = quantity;
     } else {
       // Si el item no existe, añádelo al carrito
-      cart.items.push({ product: productId, quantity });
+      cart.items.push({
+        product: productId,
+        quantity,
+        priceAtAddToCart: product.price,
+      });
     }
 
     await cart.save();
@@ -74,12 +76,10 @@ export const addOrUpdateCartItem = async (req, res) => {
     res.status(200).json(cart);
   } catch (error) {
     console.error("Error al añadir/actualizar item en el carrito:", error);
-    res
-      .status(500)
-      .json({
-        message:
-          "Error interno del servidor al añadir/actualizar item en el carrito.",
-      });
+    res.status(500).json({
+      message:
+        "Error interno del servidor al añadir/actualizar item en el carrito.",
+    });
   }
 };
 
@@ -120,11 +120,9 @@ export const removeCartItem = async (req, res) => {
     res.status(200).json(cart);
   } catch (error) {
     console.error("Error al eliminar item del carrito:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error interno del servidor al eliminar item del carrito.",
-      });
+    res.status(500).json({
+      message: "Error interno del servidor al eliminar item del carrito.",
+    });
   }
 };
 

@@ -1,3 +1,4 @@
+// chizatoBack/src/controllers/productController.js
 import Product from "../models/Product.js";
 
 // @desc    Crear un nuevo producto
@@ -64,7 +65,6 @@ export const createProduct = async (req, res) => {
 };
 
 //7. Funcion para obtener los productos
-
 export const getProducts = async (req, res) => {
   try {
     const products = await Product.find();
@@ -77,7 +77,6 @@ export const getProducts = async (req, res) => {
 };
 
 //8. Funcion para obtener el producto por ID
-
 export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -92,7 +91,6 @@ export const getProductById = async (req, res) => {
 };
 
 //9. Funcion para actualizar los productos
-
 export const updateProduct = async (req, res) => {
   try {
     const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
@@ -109,7 +107,6 @@ export const updateProduct = async (req, res) => {
 };
 
 //10. Funcion para cambiar el stock del producto
-
 export const adjustStock = async (req, res) => {
   const { productId } = req.params;
   const { amount } = req.body;
@@ -133,7 +130,6 @@ export const adjustStock = async (req, res) => {
 };
 
 //11. Funcion para borrar producto
-
 export const deleteProduct = async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id);
@@ -148,7 +144,6 @@ export const deleteProduct = async (req, res) => {
 };
 
 //12. Funcion para realizar compra
-
 export const buyProduct = async (req, res) => {
   const { productId } = req.params;
   const { quantity } = req.body;
@@ -179,5 +174,37 @@ export const buyProduct = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error al procesar la compra.", error: error.message });
+  }
+};
+//searchProducts (para el backend)**
+export const searchProducts = async (req, res) => {
+  try {
+    const { q } = req.query; // Obtén el término de búsqueda de los parámetros de la URL
+    if (!q) {
+      return res
+        .status(400)
+        .json({ message: "Se requiere un término de búsqueda (q)." });
+    }
+
+    // Crear una expresión regular insensible a mayúsculas/minúsculas
+    const searchRegex = new RegExp(q, "i");
+
+    // Buscar productos que coincidan en nombre, autor, descripción o categoría
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: searchRegex } },
+        { author: { $regex: searchRegex } },
+        { description: { $regex: searchRegex } },
+        { category: { $regex: searchRegex } },
+      ],
+    });
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Error al buscar productos:", error);
+    res.status(500).json({
+      message: "Error interno del servidor al buscar productos.",
+      error: error.message,
+    });
   }
 };
