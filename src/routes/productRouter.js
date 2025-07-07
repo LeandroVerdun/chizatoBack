@@ -7,10 +7,10 @@ import {
   deleteProduct,
   adjustStock,
   buyProduct,
-  searchProducts, // Importa la nueva función de búsqueda
+  searchProducts,
 } from "../controllers/productController.js";
 
-import { verifyToken, isAdmin } from "../middleware/auth.js"; // Asegúrate de que esta ruta es correcta
+import { verifyToken, isAdmin } from "../middleware/auth.js";
 
 const productRouter = Router();
 

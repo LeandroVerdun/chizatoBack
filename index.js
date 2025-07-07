@@ -16,6 +16,7 @@ const app = express();
 app.use(
   cors({
     origin: "https://chisato-lib2.netlify.app",
+    //origin: "http://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"],
   })

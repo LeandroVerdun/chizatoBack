@@ -40,7 +40,7 @@ export const getAllUsers = async (req, res) => {
         .status(403)
         .json({ message: "Acceso denegado. No eres administrador." });
     }
-    const users = await User.find().select("-password"); // No enviar contraseñas
+    const users = await User.find().select("-password");
     res.status(200).json(users);
   } catch (error) {
     console.error("Error al obtener usuarios:", error);
@@ -67,7 +67,7 @@ export const updateUser = async (req, res) => {
       new: true,
     }).select("-password");
     if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" }); // Error 404 manejado desde el backend
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
     res.status(200).json({ message: "Usuario actualizado", user });
   } catch (error) {
@@ -86,11 +86,36 @@ export const deleteUser = async (req, res) => {
     const { id } = req.params;
     const user = await User.findByIdAndDelete(id);
     if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" }); // Error 404 manejado desde el backend
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
     res.status(200).json({ message: "Usuario eliminado" });
   } catch (error) {
     console.error("Error al eliminar usuario:", error);
     res.status(500).json({ message: "Error al eliminar usuario" });
+  }
+};
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      // Si el usuario no es encontrado, devuelve 404 como antes.
+      return res
+        .status(404)
+        .json({ message: "El correo o usuario no fue encontrado." });
+    }
+
+    console.log(
+      `Solicitud de recuperación para ${user.email} recibida. Se notificará al administrador.`
+    );
+    res.status(200).json({
+      message: "Solicitud enviada. El administrador se comunicará contigo.",
+    });
+  } catch (error) {
+    console.error("Error en forgotPassword (simulado):", error);
+    res
+      .status(500)
+      .json({ message: "Error al procesar la solicitud de contraseña." });
   }
 };

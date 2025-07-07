@@ -1,6 +1,6 @@
-import mongoose from "mongoose"; // Cambiado de const mongoose = require('mongoose');
-import User from "./src/models/User.js"; // Cambiado de const User = require('./models/User'); y ajustada la extensión
-import bcrypt from "bcryptjs"; // Cambiado de const bcrypt = require('bcryptjs');
+import mongoose from "mongoose";
+import User from "./src/models/User.js";
+import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 
 dotenv.config();
