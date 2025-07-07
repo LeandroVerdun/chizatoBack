@@ -15,7 +15,7 @@ const app = express();
 // Middlewares
 app.use(
   cors({
-    origin: "http://localhost:5173", // Permite solicitudes solo desde tu frontend
+    origin: "https://chisato-zone.netlify.app", // Permite solicitudes solo desde tu frontend
     methods: ["GET", "POST", "PUT", "DELETE"], // Métodos HTTP permitidos
     allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"], // Encabezados permitidos
   })
@@ -40,6 +40,6 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB conectado");
-    app.listen(5000, () => console.log("Servidor corriendo en el puerto 5000"));
+    app.listen(process.env.PORT, () => console.log("Servidor corriendo en el puerto 5000"));
   })
   .catch((err) => console.error(err));
