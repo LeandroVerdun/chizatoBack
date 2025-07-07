@@ -60,7 +60,7 @@ export const updateUser = async (req, res) => {
 
     let updateData = { name, email, isAdmin };
     if (password) {
-      updateData.password = await bcrypt.hash(password, 10);
+      updateData.password = await bcryptjs.hash(password, 10);
     }
 
     const user = await User.findByIdAndUpdate(id, updateData, {
