@@ -15,7 +15,7 @@ const app = express();
 // Middlewares
 app.use(
   cors({
-    origin: "https://chisato-lib.netlify.app", // Permite solicitudes solo desde tu frontend
+    origin: "https://chisato-lib2.netlify.app", // Permite solicitudes solo desde tu frontend
     methods: ["GET", "POST", "PUT", "DELETE"], // Métodos HTTP permitidos
     allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"], // Encabezados permitidos
   })
