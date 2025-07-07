@@ -1,9 +1,6 @@
 // chizatoBack/src/controllers/productController.js
 import Product from "../models/Product.js";
 
-// @desc    Crear un nuevo producto
-// @route   POST /api/products
-// @access  Public (por ahora, luego lo protegeremos)
 export const createProduct = async (req, res) => {
   try {
     // 1. Obtener los datos del cuerpo de la solicitud
@@ -179,7 +176,7 @@ export const buyProduct = async (req, res) => {
 //searchProducts (para el backend)**
 export const searchProducts = async (req, res) => {
   try {
-    const { q } = req.query; // Obtén el término de búsqueda de los parámetros de la URL
+    const { q } = req.query;
     if (!q) {
       return res
         .status(400)

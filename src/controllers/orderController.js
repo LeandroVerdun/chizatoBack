@@ -3,13 +3,10 @@ import Order from "../models/Order.js";
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js"; // Necesario para reducir stock
 
-// @desc    Crear una nueva orden (Checkout)
-// @route   POST /api/orders
-// @access  Private (Usuario autenticado)
 export const createOrder = async (req, res) => {
   try {
     const userId = req.user.id;
-    // Opcional: Si tienes información de envío/pago desde el frontend
+
     const { shippingAddress, paymentMethod, paymentResult } = req.body;
 
     // 1. Obtener el carrito del usuario
@@ -24,11 +21,10 @@ export const createOrder = async (req, res) => {
     let totalAmount = 0;
 
     for (const cartItem of cart.items) {
-      const product = cartItem.product; // El producto ya está populado
+      const product = cartItem.product;
       const quantity = cartItem.quantity;
 
       if (!product) {
-        // Esto no debería pasar si el populate funciona, pero es una buena salvaguarda
         return res.status(404).json({
           message: `Producto con ID ${cartItem.product} no encontrado.`,
         });
@@ -45,7 +41,7 @@ export const createOrder = async (req, res) => {
         product: product._id,
         name: product.name,
         quantity: quantity,
-        priceAtPurchase: product.price, // Usar el precio actual del producto
+        priceAtPurchase: product.price,
         image: product.image,
       });
       totalAmount += product.price * quantity;
@@ -57,19 +53,18 @@ export const createOrder = async (req, res) => {
       items: orderItems,
       totalAmount: totalAmount,
       status: "completed",
-      shippingAddress: shippingAddress, // Si se proporciona
-      paymentMethod: paymentMethod, // Si se proporciona
-      paymentResult: paymentResult, // Si se proporciona
+      shippingAddress: shippingAddress,
+      paymentMethod: paymentMethod,
+      paymentResult: paymentResult,
     });
 
     const createdOrder = await newOrder.save();
 
     // 4. Reducir el stock de cada producto
     for (const orderItem of orderItems) {
-      await Product.findByIdAndUpdate(
-        orderItem.product,
-        { $inc: { stock: -orderItem.quantity } } // Decrementar el stock
-      );
+      await Product.findByIdAndUpdate(orderItem.product, {
+        $inc: { stock: -orderItem.quantity },
+      });
     }
 
     // 5. Vaciar el carrito del usuario después de la compra exitosa
@@ -88,14 +83,11 @@ export const createOrder = async (req, res) => {
   }
 };
 
-// @desc    Obtener todas las órdenes (solo para administradores)
-// @route   GET /api/orders
-// @access  Private (Admin)
 export const getOrders = async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate("user", "name email") // Popula el usuario que hizo la orden (solo nombre y email)
-      .populate("items.product", "name"); // Popula el nombre del producto en cada item
+      .populate("user", "name email")
+      .populate("items.product", "name");
 
     res.status(200).json(orders);
   } catch (error) {
@@ -107,9 +99,6 @@ export const getOrders = async (req, res) => {
   }
 };
 
-// @desc    Obtener órdenes de un usuario específico (para el propio usuario o admin)
-// @route   GET /api/orders/myorders o /api/orders/user/:userId
-// @access  Private (Usuario autenticado o Admin)
 export const getUserOrders = async (req, res) => {
   try {
     const targetUserId = req.params.userId || req.user.id;
@@ -140,14 +129,11 @@ export const getUserOrders = async (req, res) => {
   }
 };
 
-// @desc    Obtener una orden por ID (para ver detalles de una orden específica)
-// @route   GET /api/orders/:id
-// @access  Private (Usuario autenticado o Admin)
 export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate("user", "name email") // Popula el usuario
-      .populate("items.product", "name image price"); // Popula los productos completos
+      .populate("user", "name email")
+      .populate("items.product", "name image price");
 
     if (!order) {
       return res.status(404).json({ message: "Orden no encontrada." });
@@ -170,12 +156,9 @@ export const getOrderById = async (req, res) => {
   }
 };
 
-// @desc    Actualizar el estado de una orden (solo para administradores)
-// @route   PUT /api/orders/:id/status
-// @access  Private (Admin)
 export const updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body; // Nuevo estado (ej: 'shipped', 'completed')
+    const { status } = req.body;
 
     if (
       !status ||
@@ -208,9 +191,6 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
-// @desc    Eliminar una orden (solo para administradores)
-// @route   DELETE /api/orders/:id
-// @access  Private (Admin)
 export const deleteOrder = async (req, res) => {
   try {
     const order = await Order.findByIdAndDelete(req.params.id);
@@ -228,43 +208,3 @@ export const deleteOrder = async (req, res) => {
     });
   }
 };
-
-// Funciones para reportes/estadísticas (a desarrollar en el frontend o como endpoints específicos si la lógica es compleja)
-/*
-export const getTopCustomers = async (req, res) => {
-    try {
-        // Agregación de MongoDB para encontrar usuarios que compraron más
-        const topCustomers = await Order.aggregate([
-            { $group: { _id: "$user", totalOrders: { $sum: 1 }, totalSpent: { $sum: "$totalAmount" } } },
-            { $sort: { totalOrders: -1, totalSpent: -1 } },
-            { $limit: 10 },
-            { $lookup: { from: "users", localField: "_id", foreignField: "_id", as: "userDetails" } },
-            { $unwind: "$userDetails" },
-            { $project: { _id: 0, user: "$userDetails.name", email: "$userDetails.email", totalOrders: 1, totalSpent: 1 } }
-        ]);
-        res.status(200).json(topCustomers);
-    } catch (error) {
-        console.error("Error al obtener los mejores clientes:", error);
-        res.status(500).json({ message: "Error interno del servidor al obtener los mejores clientes." });
-    }
-};
-
-export const getMostPurchasedProducts = async (req, res) => {
-    try {
-        // Agregación de MongoDB para encontrar productos más comprados
-        const mostPurchased = await Order.aggregate([
-            { $unwind: "$items" },
-            { $group: { _id: "$items.product", totalQuantitySold: { $sum: "$items.quantity" } } },
-            { $sort: { totalQuantitySold: -1 } },
-            { $limit: 10 },
-            { $lookup: { from: "products", localField: "_id", foreignField: "_id", as: "productDetails" } },
-            { $unwind: "$productDetails" },
-            { $project: { _id: 0, product: "$productDetails.name", totalQuantitySold: 1 } }
-        ]);
-        res.status(200).json(mostPurchased);
-    } catch (error) {
-        console.error("Error al obtener los productos más comprados:", error);
-        res.status(500).json({ message: "Error interno del servidor al obtener los productos más comprados." });
-    }
-};
-*/

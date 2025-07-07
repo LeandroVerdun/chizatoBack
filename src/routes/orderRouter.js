@@ -7,8 +7,6 @@ import {
   getOrderById,
   updateOrderStatus,
   deleteOrder,
-  // getTopCustomers, // Opcional, para reportes
-  // getMostPurchasedProducts // Opcional, para reportes
 } from "../controllers/orderController.js";
 import { verifyToken, isAdmin } from "../middleware/auth.js";
 
@@ -24,9 +22,5 @@ orderRouter.get("/", verifyToken, isAdmin, getOrders); // Obtener todas las órd
 orderRouter.get("/user/:userId", verifyToken, isAdmin, getUserOrders); // Obtener órdenes de un usuario específico (admin)
 orderRouter.put("/:id/status", verifyToken, isAdmin, updateOrderStatus); // Actualizar estado de una orden (admin)
 orderRouter.delete("/:id", verifyToken, isAdmin, deleteOrder); // Eliminar una orden (admin)
-
-// Rutas para reportes (requieren middleware isAdmin)
-// orderRouter.get('/reports/top-customers', verifyToken, isAdmin, getTopCustomers);
-// orderRouter.get('/reports/most-purchased', verifyToken, isAdmin, getMostPurchasedProducts);
 
 export default orderRouter;

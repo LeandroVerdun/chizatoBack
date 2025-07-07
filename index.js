@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 import userRouter from "./src/routes/userRouter.js";
 import productRouter from "./src/routes/productRouter.js";
 import cartRouter from "./src/routes/cartRouter.js";
-import orderRouter from "./src/routes/orderRouter.js"; // ¡Importa el nuevo router de órdenes!
+import orderRouter from "./src/routes/orderRouter.js";
 
 dotenv.config();
 
@@ -15,9 +15,9 @@ const app = express();
 // Middlewares
 app.use(
   cors({
-    origin: "https://chisato-lib2.netlify.app", // Permite solicitudes solo desde tu frontend
-    methods: ["GET", "POST", "PUT", "DELETE"], // Métodos HTTP permitidos
-    allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"], // Encabezados permitidos
+    origin: "https://chisato-lib2.netlify.app",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"],
   })
 );
 app.use(express.json());
@@ -27,7 +27,7 @@ app.use(morgan("dev"));
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/cart", cartRouter);
-app.use("/api/orders", orderRouter); // ¡Usa el nuevo router de órdenes!
+app.use("/api/orders", orderRouter);
 
 // cone4xion a mongo y arranque del servidor
 

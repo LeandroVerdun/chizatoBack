@@ -9,7 +9,6 @@ const orderItemSchema = new mongoose.Schema({
     required: true,
   },
   name: {
-    // Guardar el nombre del producto al momento de la compra
     type: String,
     required: true,
   },
@@ -19,17 +18,14 @@ const orderItemSchema = new mongoose.Schema({
     min: 1,
   },
   priceAtPurchase: {
-    // Precio del producto en el momento de la compra
     type: Number,
     required: true,
     min: 0,
   },
   image: {
-    // Guardar la imagen del producto
     type: String,
     required: true,
   },
-  // Podrías añadir isOfferApplied, discountPercentage si quieres mantener ese detalle en la orden
 });
 
 const orderSchema = new mongoose.Schema(
@@ -39,33 +35,29 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    items: [orderItemSchema], // Array de productos comprados
+    items: [orderItemSchema],
     totalAmount: {
-      // Suma de todos los precios de los ítems * cantidad
       type: Number,
       required: true,
       min: 0,
     },
     status: {
-      // Estado de la orden (ej: 'pending', 'processing', 'shipped', 'completed', 'cancelled')
       type: String,
       enum: ["pending", "processing", "shipped", "completed", "cancelled"],
       default: "pending",
     },
-    // Información de envío (opcional, pero útil)
+
     shippingAddress: {
       address: String,
       city: String,
       postalCode: String,
       country: String,
     },
-    // Información de pago (opcional, si implementas pasarela de pago)
+
     paymentMethod: {
       type: String,
-      // enum: ['credit_card', 'paypal', 'cash_on_delivery', etc.]
     },
     paymentResult: {
-      // Detalles del resultado de la transacción del pago
       id: String,
       status: String,
       update_time: String,
@@ -73,7 +65,7 @@ const orderSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // `createdAt` para la fecha de compra, `updatedAt` para actualizaciones de estado
+    timestamps: true,
   }
 );
 
