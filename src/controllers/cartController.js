@@ -1,17 +1,14 @@
-// chizatoBack/src/controllers/cartController.js
 import Cart from "../models/Cart.js";
-import Product from "../models/Product.js"; // Necesitamos el modelo de Producto para verificar stock
+import Product from "../models/Product.js";
 
-// Función para obtener el carrito del usuario actual
 export const getCart = async (req, res) => {
   try {
-    const userId = req.user.id; // ID del usuario obtenido del token (req.user.id)
-    let cart = await Cart.findOne({ user: userId }).populate("items.product"); // Popula los detalles del producto
+    const userId = req.user.id;
+    let cart = await Cart.findOne({ user: userId }).populate("items.product");
 
-    // Si no hay carrito, retorna un carrito vacío
     if (!cart) {
       cart = new Cart({ user: userId, items: [] });
-      await cart.save(); // Guarda el carrito vacío para el usuario
+      await cart.save();
       return res.status(200).json(cart);
     }
 
@@ -24,7 +21,6 @@ export const getCart = async (req, res) => {
   }
 };
 
-// Función para añadir o actualizar un producto en el carrito
 export const addOrUpdateCartItem = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -36,7 +32,6 @@ export const addOrUpdateCartItem = async (req, res) => {
         .json({ message: "Se requiere productId y quantity (mínimo 1)." });
     }
 
-    // Verificar si el producto existe y si hay stock suficiente
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: "Producto no encontrado." });
@@ -49,7 +44,6 @@ export const addOrUpdateCartItem = async (req, res) => {
 
     let cart = await Cart.findOne({ user: userId });
 
-    // Si el usuario no tiene carrito, crea uno nuevo
     if (!cart) {
       cart = new Cart({ user: userId, items: [] });
     }
@@ -59,10 +53,8 @@ export const addOrUpdateCartItem = async (req, res) => {
     );
 
     if (itemIndex > -1) {
-      // Si el item ya existe en el carrito, actualiza la cantidad
       cart.items[itemIndex].quantity = quantity;
     } else {
-      // Si el item no existe, añádelo al carrito
       cart.items.push({
         product: productId,
         quantity,
@@ -71,7 +63,7 @@ export const addOrUpdateCartItem = async (req, res) => {
     }
 
     await cart.save();
-    // Popula los detalles del producto para la respuesta
+
     await cart.populate("items.product");
     res.status(200).json(cart);
   } catch (error) {
@@ -83,11 +75,10 @@ export const addOrUpdateCartItem = async (req, res) => {
   }
 };
 
-// Función para eliminar un producto del carrito
 export const removeCartItem = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { productId } = req.params; // Viene como parámetro de la URL
+    const { productId } = req.params;
 
     if (!productId) {
       return res
@@ -109,14 +100,13 @@ export const removeCartItem = async (req, res) => {
     );
 
     if (cart.items.length === initialItemCount) {
-      // Si la longitud no cambió, significa que el producto no estaba en el carrito
       return res
         .status(404)
         .json({ message: "El producto no se encontró en el carrito." });
     }
 
     await cart.save();
-    await cart.populate("items.product"); // Popula para la respuesta
+    await cart.populate("items.product");
     res.status(200).json(cart);
   } catch (error) {
     console.error("Error al eliminar item del carrito:", error);
@@ -126,7 +116,6 @@ export const removeCartItem = async (req, res) => {
   }
 };
 
-// Función para vaciar el carrito
 export const clearCart = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -138,7 +127,7 @@ export const clearCart = async (req, res) => {
         .json({ message: "Carrito no encontrado para este usuario." });
     }
 
-    cart.items = []; // Vacía el array de items
+    cart.items = [];
     await cart.save();
     res.status(200).json({ message: "Carrito vaciado exitosamente.", cart });
   } catch (error) {
@@ -148,12 +137,3 @@ export const clearCart = async (req, res) => {
       .json({ message: "Error interno del servidor al vaciar el carrito." });
   }
 };
-
-// NOTA IMPORTANTE: La función de "checkout" o "finalizar compra" se haría aquí
-// Implicaría:
-// 1. Obtener el carrito del usuario.
-// 2. Verificar el stock de cada producto en el carrito.
-// 3. Crear un nuevo modelo de "Order" (Pedido) con los detalles de la compra.
-// 4. Reducir el stock de los productos correspondientes.
-// 5. Vaciar el carrito del usuario.
-// Esto lo podemos hacer en un paso posterior una vez que el manejo básico del carrito funcione.

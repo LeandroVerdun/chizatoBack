@@ -1,7 +1,5 @@
-// chizatoBack/src/models/Order.js
 import mongoose from "mongoose";
 
-// Esquema para los ítems dentro de una orden (similar a cartItemSchema, pero para la orden final)
 const orderItemSchema = new mongoose.Schema({
   product: {
     type: mongoose.Schema.Types.ObjectId,

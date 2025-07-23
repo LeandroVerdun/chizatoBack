@@ -1,4 +1,3 @@
-// chizatoBack/src/models/Cart.js
 import mongoose from "mongoose";
 
 const cartItemSchema = new mongoose.Schema({
@@ -34,14 +33,14 @@ const cartSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Referencia al modelo de Usuario
+      ref: "User",
       required: true,
-      unique: true, // Un usuario solo puede tener un carrito activo
+      unique: true,
     },
-    items: [cartItemSchema], // Un array de items en el carrito
+    items: [cartItemSchema],
   },
   {
-    timestamps: true, // Añade createdAt y updatedAt automáticamente
+    timestamps: true,
   }
 );
 

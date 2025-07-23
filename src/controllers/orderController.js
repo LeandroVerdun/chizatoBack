@@ -1,7 +1,6 @@
-// chizatoBack/src/controllers/orderController.js
 import Order from "../models/Order.js";
 import Cart from "../models/Cart.js";
-import Product from "../models/Product.js"; // Necesario para reducir stock
+import Product from "../models/Product.js";
 
 export const createOrder = async (req, res) => {
   try {
@@ -9,14 +8,12 @@ export const createOrder = async (req, res) => {
 
     const { shippingAddress, paymentMethod, paymentResult } = req.body;
 
-    // 1. Obtener el carrito del usuario
     let cart = await Cart.findOne({ user: userId }).populate("items.product");
 
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ message: "El carrito está vacío." });
     }
 
-    // 2. Verificar stock para cada producto antes de crear la orden (CRÍTICO)
     const orderItems = [];
     let totalAmount = 0;
 
@@ -36,7 +33,6 @@ export const createOrder = async (req, res) => {
         });
       }
 
-      // Guardar los detalles del producto en la orden, incluyendo el precio al momento de la compra
       orderItems.push({
         product: product._id,
         name: product.name,
@@ -47,7 +43,6 @@ export const createOrder = async (req, res) => {
       totalAmount += product.price * quantity;
     }
 
-    // 3. Crear la nueva orden
     const newOrder = new Order({
       user: userId,
       items: orderItems,
@@ -60,14 +55,12 @@ export const createOrder = async (req, res) => {
 
     const createdOrder = await newOrder.save();
 
-    // 4. Reducir el stock de cada producto
     for (const orderItem of orderItems) {
       await Product.findByIdAndUpdate(orderItem.product, {
         $inc: { stock: -orderItem.quantity },
       });
     }
 
-    // 5. Vaciar el carrito del usuario después de la compra exitosa
     cart.items = [];
     await cart.save();
 
@@ -78,7 +71,7 @@ export const createOrder = async (req, res) => {
     console.error("Error al crear la orden:", error);
     res.status(500).json({
       message: "Error interno del servidor al procesar la compra.",
-      detailedError: error.message, // Para depuración
+      detailedError: error.message,
     });
   }
 };
@@ -139,7 +132,6 @@ export const getOrderById = async (req, res) => {
       return res.status(404).json({ message: "Orden no encontrada." });
     }
 
-    // Asegurarse de que el usuario solo pueda ver sus propias órdenes, a menos que sea admin
     if (order.user._id.toString() !== req.user.id && !req.user.isAdmin) {
       return res.status(403).json({
         message: "Acceso denegado. No autorizado para ver esta orden.",

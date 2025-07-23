@@ -1,5 +1,3 @@
-// C:\Users\Usuario\Desktop\Rolling Code School\Proyecto final\chizatoBack\src\models\Product.js
-
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
@@ -36,11 +34,14 @@ const productSchema = new mongoose.Schema(
       max: 5,
       default: 1,
     },
-
     price: {
       type: Number,
-      required: true, // El precio debe ser obligatorio
-      min: 0, // El precio mínimo debe ser 0 o un valor positivo
+      required: true,
+      min: 0,
+    },
+    lastStockControlDate: {
+      type: Date,
+      default: Date.now,
     },
   },
   {

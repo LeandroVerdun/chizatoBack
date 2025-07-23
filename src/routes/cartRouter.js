@@ -1,4 +1,3 @@
-// chizatoBack/src/routes/cartRouter.js
 import { Router } from "express";
 import {
   getCart,
